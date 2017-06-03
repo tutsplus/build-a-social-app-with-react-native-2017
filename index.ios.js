@@ -1,32 +1,20 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { AppRegistry } from 'react-native';
-import { StackNavigator, TabNavigator } from 'react-navigation';
-import { Icon } from 'react-native-elements';
+import { Provider } from 'react-redux';
 
-import TimelineScreen from './timeline';
-import PostDetailScreen from './post-detail';
-import ProfileScreen from './profile';
+import AppWithNavigationState from './app-navigator';
+import createStore from './store';
 
-const TimelineNavigator = StackNavigator({
-  Timeline: { screen: TimelineScreen },
-  Post: { path: 'posts/:post_id', screen: PostDetailScreen }
-});
-TimelineNavigator.navigationOptions = {
-  title: 'Timeline',
-  tabBarIcon: ({ tintColor }) => <Icon color={tintColor} name="image" />
-};
+const store = createStore();
 
-const ProfileNavigator = StackNavigator({
-  Profile: { screen: ProfileScreen }
-});
-ProfileNavigator.navigationOptions = {
-  title: 'Profile',
-  tabBarIcon: ({ tintColor }) => <Icon color={tintColor} name="account-box" />
-};
+class Root extends Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <AppWithNavigationState />
+      </Provider>
+    );
+  }
+}
 
-const MainNavigator = TabNavigator({
-  Home: { screen: TimelineNavigator },
-  Profile: { screen: ProfileNavigator }
-});
-
-AppRegistry.registerComponent('PictureFeed', () => MainNavigator);
+AppRegistry.registerComponent('PictureFeed', () => Root);
