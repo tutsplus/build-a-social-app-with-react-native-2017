@@ -12,6 +12,8 @@ import {
   View
 } from 'react-native';
 
+import ProfileScreen from './profile';
+
 export default class PictureFeed extends Component {
   render() {
     return (
@@ -50,4 +52,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('PictureFeed', () => PictureFeed);
+AppRegistry.registerComponent('PictureFeed', () => ProfileScreen);
