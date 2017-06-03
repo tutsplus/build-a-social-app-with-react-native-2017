@@ -1,55 +1,32 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+import React from 'react';
+import { AppRegistry } from 'react-native';
+import { StackNavigator, TabNavigator } from 'react-navigation';
+import { Icon } from 'react-native-elements';
 
-import React, { Component } from 'react';
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-
+import TimelineScreen from './timeline';
+import PostDetailScreen from './post-detail';
 import ProfileScreen from './profile';
 
-export default class PictureFeed extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
-    );
-  }
-}
+const TimelineNavigator = StackNavigator({
+  Timeline: { screen: TimelineScreen },
+  Post: { path: 'posts/:post_id', screen: PostDetailScreen }
+});
+TimelineNavigator.navigationOptions = {
+  title: 'Timeline',
+  tabBarIcon: ({ tintColor }) => <Icon color={tintColor} name="image" />
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+const ProfileNavigator = StackNavigator({
+  Profile: { screen: ProfileScreen }
+});
+ProfileNavigator.navigationOptions = {
+  title: 'Profile',
+  tabBarIcon: ({ tintColor }) => <Icon color={tintColor} name="account-box" />
+};
+
+const MainNavigator = TabNavigator({
+  Home: { screen: TimelineNavigator },
+  Profile: { screen: ProfileNavigator }
 });
 
-AppRegistry.registerComponent('PictureFeed', () => ProfileScreen);
+AppRegistry.registerComponent('PictureFeed', () => MainNavigator);

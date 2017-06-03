@@ -18,6 +18,10 @@ const styles = StyleSheet.create({
 });
 
 export default class ProfileScreen extends Component {
+  static navigationOptions = {
+    title: 'Profile'
+  };
+
   gravatarUrl() {
     let email = 'markus@mmuehlberger.com';
     return 'https://gravatar.com/avatar/' + md5(email) + '?s=400';
