@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry } from 'react-native';
+import { AppRegistry, AsyncStorage } from 'react-native';
 import { NavigationActions, StackNavigator, TabNavigator } from 'react-navigation';
 import { Icon } from 'react-native-elements';
 
@@ -40,11 +40,21 @@ const MainNavigator = TabNavigator({
 class Main extends Component {
   state = { authComplete: false };
 
-  _setupAuthentication() {
-    this.props.navigation.dispatch(NavigationActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: 'Login' })]
-    }));
+  async _setupAuthentication() {
+    try {
+      let credentials = await AsyncStorage.multiGet(['email', 'password']);
+      await this.props.firebase.login({
+        email: credentials[0][1],
+        password: credentials[1][1]
+      });
+
+      this.setState({ authComplete: true });
+    } catch (err) {
+      this.props.navigation.dispatch(NavigationActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: 'Login' })]
+      }));
+    }
   }
 
   componentDidMount() {

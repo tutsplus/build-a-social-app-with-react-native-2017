@@ -5,9 +5,11 @@ import { NavigationActions } from 'react-navigation';
 
 import { Button, FormLabel, FormInput } from 'react-native-elements';
 
+@firebaseConnect()
 export default class LoginScreen extends Component {
   state = {
-    isLoading: false
+    isLoading: false,
+    isSignup: false
   };
 
   render() {
@@ -19,11 +21,29 @@ export default class LoginScreen extends Component {
       );
     }
 
+    let nameField = null;
+    if (this.state.isSignup) {
+      nameField = (
+        <View>
+          <FormLabel>Name</FormLabel>
+          <FormInput
+            onChangeText={(value) => this.setState({ name: value })}
+            autoCapitalize='words'
+            autoFocus={true}
+            onSubmitEditing={() => this._focusField('email')}
+            returnKeyType='next'
+          />
+        </View>
+      );
+    }
+
     return (
       <View>
         <Text style={{marginTop: 36, textAlign: 'center', fontSize: 18, fontWeight: 'bold'}}>
           Authentication Required
         </Text>
+
+        {nameField}
 
         <FormLabel>Email</FormLabel>
         <FormInput
@@ -42,16 +62,23 @@ export default class LoginScreen extends Component {
           textInputRef='passwordField'
           ref='password'
           onChangeText={(value) => this.setState({ password: value })}
-          onSubmitEditing={() => this._performLogin()}
+          onSubmitEditing={() => this._performLoginOrSignup()}
           returnKeyType='send'
           secureTextEntry={true}
         />
 
         <Button
-          onPress={() => this._performLogin()}
-          title="Login"
+          onPress={() => this._performLoginOrSignup()}
+          title={this.state.isSignup ? "Signup" : "Login"}
           style={{marginTop: 25}}
           backgroundColor='#212A34'
+        />
+
+        <Button
+          onPress={() => this.setState({ isSignup: !this.state.isSignup })}
+          backgroundColor='#79B345'
+          style={{marginTop: 8}}
+          title={this.state.isSignup ? "Already have an account? Log In." : "Don't have an account? Sign Up."}
         />
       </View>
     );
@@ -61,6 +88,28 @@ export default class LoginScreen extends Component {
     this.refs[field].focus();
   }
 
+  _performLoginOrSignup() {
+    if (this.state.isSignup) {
+      this._performSignup();
+    } else {
+      this._performLogin();
+    }
+  }
+
+  _performSignup() {
+    this.setState({ isLoading: true });
+
+    let { email, password, name } = this.state;
+    const credentials = { email, password };
+    const userData = { displayName: name, email };
+
+    return this.props.firebase.createUser(credentials, userData).then(() => {
+      this._saveAndRedirect(credentials);
+    }).catch((err) => {
+      this.setState({ isLoading: false });
+    });
+  }
+
   _performLogin() {
     this.setState({ isLoading: true });
 
@@ -68,14 +117,18 @@ export default class LoginScreen extends Component {
     const credentials = { email, password };
 
     return this.props.firebase.login(credentials).then(() => {
-      AsyncStorage.multiSet([['email', this.state.email], ['password', this.state.password]]).then(() => {
-        this.props.navigation.dispatch(NavigationActions.reset({
-          index: 0,
-          actions: [NavigationActions.navigate({ routeName: 'Main' })]
-        }));
-      });
+      this._saveAndRedirect(credentials);
     }).catch((err) => {
       this.setState({ isLoading: false });
+    });
+  }
+
+  _saveAndRedirect({ email, password }) {
+    AsyncStorage.multiSet([['email', email], ['password', password]]).then(() => {
+      this.props.navigation.dispatch(NavigationActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: 'Main' })]
+      }));
     });
   }
 }
