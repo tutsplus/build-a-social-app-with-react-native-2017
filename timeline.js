@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
-import { Button, Text, View } from 'react-native';
+import { Button, ScrollView, Image, Text, View } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 
 import { connect } from 'react-redux';
-import { firebaseConnect, pathToJS } from 'react-redux-firebase';
+import { firebaseConnect, pathToJS, populatedDataToJS } from 'react-redux-firebase';
 
-@firebaseConnect()
+const populates = [
+  { child: 'user_id', root: 'profiles' }
+];
+
+@firebaseConnect([
+  { path: '/posts', queryParams: ['orderByChild=created_at', 'limitToLast=5'], populates}
+])
 @connect(({ firebase }) => ({
-  auth: pathToJS(firebase, 'auth')
+  auth: pathToJS(firebase, 'auth'),
+  posts: populatedDataToJS(firebase, 'posts', populates)
 }))
 export default class TimelineScreen extends Component {
   static navigationOptions = ({ navigation}) => ({
@@ -34,19 +41,27 @@ export default class TimelineScreen extends Component {
   }
 
   render() {
-    return (
-      <View>
-        <Text>Timeline</Text>
-        <Button
-          onPress={() => this.props.navigation.navigate('Post', { post_id: '1' })}
-          title="Go To Post 1"
-        />
+    let posts = null;
+    if (this.props.posts) {
+      posts = Object.values(this.props.posts).sort((a,b) => b.created_at - a.created_at).map((post, i) => {
+        let date = new Date(post.created_at);
 
-        <Button
-          onPress={() => this.props.navigation.navigate('Post', { post_id: '2' })}
-          title="Go To Post 2"
-        />
-      </View>
+        return (
+          <View key={i} style={{padding: 10, marginBottom: 25, backgroundColor: '#FFF'}}>
+            <Text style={{paddingBottom: 5, fontWeight: 'bold'}}>{post.user_id.displayName}</Text>
+            <Image source={{uri: post.image, isStatic: true }} style={{height: 250}} />
+            <Text style={{paddingTop: 5, textAlign: 'center', fontStyle: 'italic'}}>
+              {date.toString()}
+            </Text>
+          </View>
+        )
+      });
+    }
+
+    return (
+      <ScrollView>
+        {posts}
+      </ScrollView>
     );
   }
 }
