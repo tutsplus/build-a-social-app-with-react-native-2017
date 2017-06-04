@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, ScrollView, Image, Text, View } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
-
+import Geocoder from 'react-native-geocoder';
 import { connect } from 'react-redux';
 import { firebaseConnect, pathToJS, populatedDataToJS } from 'react-redux-firebase';
 
@@ -32,10 +32,15 @@ export default class TimelineScreen extends Component {
       quality: 0.1,
       title: 'Select Image'
     }, (response) => {
-      this.props.firebase.push('/posts', {
-        user_id: this.props.auth.uid,
-        created_at: (new Date()).getTime(),
-        image: `data:image/jpeg;base64,${response.data}`
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        Geocoder.geocodePosition({ lat: coords.latitude, lng: coords.longitude }).then((result) => {
+          this.props.firebase.push('/posts', {
+            user_id: this.props.auth.uid,
+            created_at: (new Date()).getTime(),
+            image: `data:image/jpeg;base64,${response.data}`,
+            location: `${result[0].locality}, ${result[0].country}`
+          });
+        });
       });
     })
   }
@@ -51,7 +56,7 @@ export default class TimelineScreen extends Component {
             <Text style={{paddingBottom: 5, fontWeight: 'bold'}}>{post.user_id.displayName}</Text>
             <Image source={{uri: post.image, isStatic: true }} style={{height: 250}} />
             <Text style={{paddingTop: 5, textAlign: 'center', fontStyle: 'italic'}}>
-              {date.toString()}
+              {post.location ? post.location : 'Somewhere in the world'}
             </Text>
           </View>
         )
