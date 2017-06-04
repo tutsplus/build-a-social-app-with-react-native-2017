@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Button, Text, StyleSheet } from 'react-native';
 import md5 from 'blueimp-md5';
 import {Avatar, Grid, Row, Col} from 'react-native-elements';
 
@@ -31,9 +31,10 @@ const styles = StyleSheet.create({
   posts: dataToJS(firebase, 'posts')
 }))
 export default class ProfileScreen extends Component {
-  static navigationOptions = {
-    title: 'Profile'
-  };
+  static navigationOptions = ({ navigation }) => ({
+    title: 'Profile',
+    headerRight: <Button title="Add Contacts" onPress={() => navigation.navigate('AddContacts')} />
+  });
 
   gravatarUrl() {
     let email = this.props.auth.email;

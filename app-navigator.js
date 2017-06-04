@@ -6,6 +6,7 @@ import { Icon } from 'react-native-elements';
 import { firebaseConnect, pathToJS, isLoaded } from 'react-redux-firebase';
 import { connect } from 'react-redux';
 
+import AddContactsScreen from './add-contacts';
 import LoginScreen from './login';
 import TimelineScreen from './timeline';
 import PostDetailScreen from './post-detail';
@@ -21,8 +22,9 @@ TimelineNavigator.navigationOptions = {
 };
 
 const ProfileNavigator = StackNavigator({
-  Profile: { screen: ProfileScreen }
-});
+  Profile: { screen: ProfileScreen },
+  AddContacts: { screen: AddContactsScreen }
+}, { mode: 'modal' });
 ProfileNavigator.navigationOptions = {
   title: 'Profile',
   tabBarIcon: ({ tintColor }) => <Icon color={tintColor} name="account-box" />

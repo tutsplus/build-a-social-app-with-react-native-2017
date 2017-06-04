@@ -13,9 +13,6 @@ const FirebaseConfig = {
 export default function configureStore(initialState, history) {
   const reduxFirebase = reactReduxFirebase(FirebaseConfig, {
     userProfile: 'profiles',
-    profileParamsToPopulate: [
-      'following:users'
-    ],
     enableLogging: true,
     ReactNative: { AsyncStorage }
   });
